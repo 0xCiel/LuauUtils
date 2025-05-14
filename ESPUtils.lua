@@ -8,8 +8,8 @@ local ESP = {
 local Config = {
     FontSize = 18, 
     Color = Color3.new(1, 1, 1),
-    TextOffset = Vector2.new(0, -50),
-    Outline = true
+    TextOffset = Vector2.new(0, 0),
+    Outline = false
 }
 
 function ESP.Create(object)
