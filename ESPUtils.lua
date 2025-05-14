@@ -51,7 +51,7 @@ function ESP.Create(object)
             rootPos = object.Position
         else
             if settings.UseWorldPivot then
-                rootPos = object:GetWorldPivot().Position
+                rootPos = object:GetPivot().Position
             else
                 local hrp = object:FindFirstChild("HumanoidRootPart") or object:FindFirstChildWhichIsA("BasePart")
                 if not hrp then return end
@@ -63,10 +63,7 @@ function ESP.Create(object)
         local screenPos, onScreen = Camera:WorldToViewportPoint(rootPos)
 
         if onScreen then
-            local displayText = object.Name
-            if settings.ShowDistance then
-                displayText = string.format("%s [%.1f]", displayText, distance)
-            end
+            local displayText = settings.ShowDistance and string.format("%s [%.1fm]", object.Name, distance) or object.Name
             text.Text = displayText
             text.Position = Vector2.new(screenPos.X + Config.TextOffset.X, screenPos.Y + Config.TextOffset.Y)
             text.Visible = true
