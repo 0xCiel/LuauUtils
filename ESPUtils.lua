@@ -1,8 +1,10 @@
+
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local ESP = {}
+
+local ESPUtils = {}
+
 local DefaultConfig = {
     Enabled = false,
     Color = Color3.new(1, 1, 1),
@@ -14,10 +16,11 @@ local DefaultConfig = {
 }
 local ActiveESPs = {}
 
-function ESP.Create(object)
+function ESPUtils.Create(object)
     if not object or not object:IsA("BasePart") and not object:IsA("Model") then
         return nil
     end
+    
     local config = table.clone(DefaultConfig)
     local textDrawing = Drawing.new("Text")
     textDrawing.Visible = false
@@ -92,9 +95,7 @@ function ESP.Create(object)
         end
     end)
     
-    ActiveESPs[object] = true
-    
-    return {
+    ActiveESPs[object] = {
         Enable = function(state)
             config.Enabled = state
         end,
@@ -110,15 +111,16 @@ function ESP.Create(object)
         
         Unload = Unload
     }
+    
+    return ActiveESPs[object]
 end
 
-function ESP.CleanupAll()
-    for object, _ in pairs(ActiveESPs) do
-        local esp = ActiveESPs[object]
+function ESPUtils.CleanupAll()
+    for object, esp in pairs(ActiveESPs) do
         if esp and esp.Unload then
             esp:Unload()
         end
     end
 end
 
-return ESP
+return ESPUtils
