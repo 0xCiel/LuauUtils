@@ -6,7 +6,8 @@ local Config = {
     FontSize = 18,
     Color = Color3.new(1, 1, 1),
     TextOffset = Vector2.new(0, 0),
-    Outline = false
+    Outline = false,
+    ShowDistance = true
 }
 
 local ESP = {
@@ -28,7 +29,8 @@ function ESP.Create(object)
     local updateName = "ESP_Update_" .. object:GetDebugId()
     local settings = {
         Enabled = false,
-        UseWorldPivot = false
+        UseWorldPivot = false,
+        ShowDistance = Config.ShowDistance
     }
 
     local function Update()
@@ -37,15 +39,35 @@ function ESP.Create(object)
             return
         end
 
-        local rootPart = object
-        if object:IsA("Model") then
-            rootPart = object:FindFirstChild(settings.UseWorldPivot and "WorldPivot" or "HumanoidRootPart") or object:FindFirstChildWhichIsA("BasePart")
-            if not rootPart then return end
+        local player = Players.LocalPlayer
+        local character = player.Character
+        if not character then return end
+
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if not humanoidRootPart then return end
+
+        local rootPos
+        if object:IsA("BasePart") then
+            rootPos = object.Position
+        else
+            if settings.UseWorldPivot then
+                rootPos = object:GetWorldPivot().Position
+            else
+                local hrp = object:FindFirstChild("HumanoidRootPart") or object:FindFirstChildWhichIsA("BasePart")
+                if not hrp then return end
+                rootPos = hrp.Position
+            end
         end
 
-        local screenPos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+        local distance = (humanoidRootPart.Position - rootPos).Magnitude
+        local screenPos, onScreen = Camera:WorldToViewportPoint(rootPos)
+
         if onScreen then
-            text.Text = object.Name
+            local displayText = object.Name
+            if settings.ShowDistance then
+                displayText = string.format("%s [%.1f]", displayText, distance)
+            end
+            text.Text = displayText
             text.Position = Vector2.new(screenPos.X + Config.TextOffset.X, screenPos.Y + Config.TextOffset.Y)
             text.Visible = true
         else
@@ -76,6 +98,10 @@ function ESP.Create(object)
         
         UpdateFontSize = function(size)
             text.Size = size
+        end,
+        
+        ShowDistance = function(state)
+            settings.ShowDistance = state
         end,
         
         Unload = Unload
