@@ -8,7 +8,8 @@ local Config = {
     TextOffset = Vector2.new(0, 0),
     Outline = false,
     ShowDistance = true,
-    ShowHealth = true
+    ShowHealth = true,
+    MaxDistance = 1000 -- Default max distance
 }
 
 local ESP = {
@@ -32,7 +33,8 @@ function ESP.Create(object)
     local settings = {
         Enabled = false,
         UseWorldPivot = false,
-        ShowDistance = Config.ShowDistance
+        ShowDistance = Config.ShowDistance,
+        Distance = Config.MaxDistance -- Per-ESP distance
     }
 
     local function Update()
@@ -62,8 +64,12 @@ function ESP.Create(object)
         end
 
         local distance = (humanoidRootPart.Position - rootPos).Magnitude
-        local screenPos, onScreen = Camera:WorldToViewportPoint(rootPos)
+        if distance > settings.Distance then -- Distance check
+            text.Visible = false
+            return
+        end
 
+        local screenPos, onScreen = Camera:WorldToViewportPoint(rootPos)
         if onScreen then
             local displayText = settings.ShowDistance and string.format("%s [%.1fm]", object.Name, distance) or object.Name
             text.Text = displayText
@@ -103,6 +109,14 @@ function ESP.Create(object)
             settings.ShowDistance = state
         end,
         
+        SetDistance = function(_, distance)
+            settings.Distance = distance
+        end,
+        
+        GetDistance = function()
+            return settings.Distance
+        end,
+        
         Unload = Unload
     }
 
@@ -129,7 +143,8 @@ function ESP.CreateHumanESP(humanoid)
     local settings = {
         Enabled = false,
         ShowDistance = Config.ShowDistance,
-        ShowHealth = Config.ShowHealth
+        ShowHealth = Config.ShowHealth,
+        Distance = Config.MaxDistance
     }
 
     local function Update()
@@ -149,8 +164,12 @@ function ESP.CreateHumanESP(humanoid)
         if not hrp then return end
 
         local distance = (playerHrp.Position - hrp.Position).Magnitude
-        local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+        if distance > settings.Distance then
+            text.Visible = false
+            return
+        end
 
+        local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
         if onScreen then
             local healthPercent = math.floor((humanoid.Health / humanoid.MaxHealth) * 100)
             local displayText = string.format("%s [%.1fm][%d%%]", 
@@ -194,6 +213,14 @@ function ESP.CreateHumanESP(humanoid)
         
         ShowHealth = function(state)
             settings.ShowHealth = state
+        end,
+        
+        SetDistance = function(_, distance)
+            settings.Distance = distance
+        end,
+        
+        GetDistance = function()
+            return settings.Distance
         end,
         
         Unload = Unload
