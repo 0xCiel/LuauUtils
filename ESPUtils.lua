@@ -9,7 +9,7 @@ local Config = {
     Outline = false,
     ShowDistance = true,
     ShowHealth = true,
-    MaxDistance = 1000 -- Default max distance
+    MaxDistance = 1000 
 }
 
 local ESP = {
@@ -34,7 +34,7 @@ function ESP.Create(object)
         Enabled = false,
         UseWorldPivot = false,
         ShowDistance = Config.ShowDistance,
-        Distance = Config.MaxDistance -- Per-ESP distance
+        Distance = Config.MaxDistance 
     }
 
     local function Update()
@@ -64,7 +64,7 @@ function ESP.Create(object)
         end
 
         local distance = (humanoidRootPart.Position - rootPos).Magnitude
-        if distance > settings.Distance then -- Distance check
+        if distance > settings.Distance then
             text.Visible = false
             return
         end
