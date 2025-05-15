@@ -9,7 +9,7 @@ local Config = {
     Outline = false,
     ShowDistance = true,
     ShowHealth = true,
-    MaxDistance = 1000 
+    MaxDistance = 1000
 }
 
 local ESP = {
@@ -34,7 +34,8 @@ function ESP.Create(object)
         Enabled = false,
         UseWorldPivot = false,
         ShowDistance = Config.ShowDistance,
-        Distance = Config.MaxDistance 
+        Distance = Config.MaxDistance,
+        Color = Config.Color
     }
 
     local function Update()
@@ -71,6 +72,7 @@ function ESP.Create(object)
 
         local screenPos, onScreen = Camera:WorldToViewportPoint(rootPos)
         if onScreen then
+            text.Color = settings.Color
             local displayText = settings.ShowDistance and string.format("%s [%.1fm]", object.Name, distance) or object.Name
             text.Text = displayText
             text.Position = Vector2.new(screenPos.X + Config.TextOffset.X, screenPos.Y + Config.TextOffset.Y)
@@ -117,6 +119,16 @@ function ESP.Create(object)
             return settings.Distance
         end,
         
+        SetColor = function(_, color)
+            if typeof(color) == "Color3" then
+                settings.Color = color
+            end
+        end,
+        
+        GetColor = function()
+            return settings.Color
+        end,
+        
         Unload = Unload
     }
 
@@ -144,7 +156,8 @@ function ESP.CreateHumanESP(humanoid)
         Enabled = false,
         ShowDistance = Config.ShowDistance,
         ShowHealth = Config.ShowHealth,
-        Distance = Config.MaxDistance
+        Distance = Config.MaxDistance,
+        Color = Config.Color
     }
 
     local function Update()
@@ -171,6 +184,7 @@ function ESP.CreateHumanESP(humanoid)
 
         local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
         if onScreen then
+            text.Color = settings.Color
             local healthPercent = math.floor((humanoid.Health / humanoid.MaxHealth) * 100)
             local displayText = string.format("%s [%.1fm][%d%%]", 
                 character.Name, 
@@ -221,6 +235,16 @@ function ESP.CreateHumanESP(humanoid)
         
         GetDistance = function()
             return settings.Distance
+        end,
+        
+        SetColor = function(_, color)
+            if typeof(color) == "Color3" then
+                settings.Color = color
+            end
+        end,
+        
+        GetColor = function()
+            return settings.Color
         end,
         
         Unload = Unload
